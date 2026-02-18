@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Is Your Life a Carnival?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --crimson: #8b1a2b;
+    --deep: #0d0a0e;
+    --card: #1a1420;
+    --text: #f0e8d8;
+    --muted: #9a8f80;
+    --accent: #d4484a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background-color: var(--deep);
+    color: var(--text);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(ellipse at 20% 20%, rgba(139,26,43,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(201,168,76,0.08) 0%, transparent 50%);
+  }
+
+  .noise {
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 4rem;
+    animation: fadeDown 1s ease forwards;
+  }
+
+  .ornament {
+    color: var(--gold);
+    font-size: 1.2rem;
+    letter-spacing: 0.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--gold-light);
+    margin-bottom: 1rem;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    color: var(--gold-light);
+    font-style: italic;
+    font-weight: 400;
+    line-height: 1.6;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  .divider {
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 1.5rem auto;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-bottom: 2.5rem;
+    animation: fadeIn 0.6s ease forwards;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.8rem;
+  }
+
+  #q-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.18rem;
+    text-transform: uppercase;
+    color: var(--gold-light);
+  }
+
+  #q-pct {
+    font-size: 0.8rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .progress-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(to right, var(--crimson), var(--gold));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* QUESTION CARD */
+  .question-card {
+    background: var(--card);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 2px;
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(to bottom, var(--crimson), var(--gold));
+  }
+
+  .question-number {
+    font-size: 0.75rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    margin-bottom: 0.8rem;
+    display: block;
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.3rem, 3vw, 1.65rem);
+    font-weight: 400;
+    line-height: 1.55;
+    color: var(--text);
+    margin-bottom: 2rem;
+  }
+
+  /* OPTIONS */
+  .options {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .option {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 2px;
+    padding: 1.2rem 1.5rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    text-align: left;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .option:hover {
+    background: rgba(201,168,76,0.08);
+    border-color: rgba(201,168,76,0.3);
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    background: rgba(139,26,43,0.2);
+    border-color: var(--crimson);
+    color: var(--gold-light);
+  }
+
+  .option-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    min-width: 1.6rem;
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 50%;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+  }
+
+  .option.selected .option-letter {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: white;
+  }
+
+  /* BUTTONS */
+  .btn-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    animation: fadeIn 0.5s ease forwards;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 0.75rem 2rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 1px;
+  }
+
+  .btn:hover {
+    background: var(--gold);
+    color: var(--deep);
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 640px) {
+    .btn-wrap {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to top, var(--deep) 70%, transparent);
+      z-index: 100;
+      justify-content: stretch;
+    }
+
+    .btn {
+      width: 100%;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1rem;
+    }
+
+    .container {
+      padding-bottom: 6rem;
+    }
+  }
+
+  /* RESULT */
+  .result-card {
+    background: var(--card);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 2px;
+    padding: 3rem;
+    text-align: center;
+    animation: fadeUp 0.8s ease forwards;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(201,168,76,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .result-archetype {
+    font-size: 0.8rem;
+    letter-spacing: 0.3rem;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--gold-light);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .result-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+
+  .result-description {
+    font-size: clamp(1.05rem, 2.2vw, 1.2rem);
+    line-height: 1.8;
+    color: var(--text);
+    font-weight: 300;
+    max-width: 580px;
+    margin: 0 auto 2rem;
+    text-align: left;
+    list-style: none;
+    padding: 0;
+  }
+
+  .result-description li {
+    padding: 0.5rem 0 0.5rem 1.8rem;
+    position: relative;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+  }
+
+  .result-description li:last-child {
+    border-bottom: none;
+  }
+
+  .result-description li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: var(--gold);
+    font-size: 0.65rem;
+    top: 0.85rem;
+    opacity: 0.7;
+  }
+
+  .result-quote {
+    font-style: italic;
+    color: var(--gold);
+    font-size: clamp(1.3rem, 3vw, 1.7rem);
+    border-left: 2px solid var(--gold);
+    padding-left: 1.2rem;
+    text-align: left;
+    max-width: 480px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+  }
+
+  .result-verdict {
+    background: rgba(139,26,43,0.15);
+    border: 1px solid rgba(139,26,43,0.3);
+    padding: 1rem 1.5rem;
+    font-size: 0.9rem;
+    color: var(--muted);
+    font-style: italic;
+    max-width: 480px;
+    margin: 0 auto 2rem;
+    border-radius: 1px;
+  }
+
+  .btn-restart {
+    background: transparent;
+    border: 1px solid rgba(201,168,76,0.4);
+    color: var(--muted);
+    padding: 0.65rem 1.75rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border-radius: 1px;
+  }
+
+  .btn-restart:hover {
+    color: var(--gold);
+    border-color: var(--gold);
+  }
+
+  /* BREAKDOWN */
+  .breakdown {
+    margin-top: 2rem;
+    text-align: left;
+  }
+
+  .breakdown-title {
+    font-size: 0.75rem;
+    letter-spacing: 0.2rem;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+  }
+
+  .breakdown-label {
+    width: 160px;
+    min-width: 160px;
+    color: var(--gold-light);
+    font-style: italic;
+    font-size: 1rem;
+  }
+
+  .breakdown-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .breakdown-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--crimson), var(--gold));
+    border-radius: 2px;
+    transition: width 1s ease 0.3s;
+  }
+
+  .breakdown-pct {
+    width: 3rem;
+    text-align: right;
+    color: var(--gold);
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .hidden { display: none !important; }
+
+  /* Scroll */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--gold); opacity: 0.3; }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+
+<div class="container">
+  <header class="header">
+    <span class="ornament">✦ &nbsp; A QUIZ OF CONSIDERABLE CONSEQUENCE &nbsp; ✦</span>
+    <h1>Is Your Life a <em>Carnival</em>,<br>or Are You Running the Audit?</h1>
+    <div class="divider"></div>
+    <p class="subtitle">Ten Questions to Know if You Are the Attraction, the Accountant, the Penitent, or Something Altogether More Interesting.</p>
+  </header>
+
+  <!-- QUIZ -->
+  <div id="quiz">
+    <div class="progress-wrap">
+      <div class="progress-label">
+        <span id="q-label">Question 1 of 10</span>
+        <span id="q-pct">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="question-card">
+      <span class="question-number" id="q-number">Question I</span>
+      <p class="question-text" id="q-text"></p>
+      <div class="options" id="q-options"></div>
+    </div>
+
+    <div class="btn-wrap">
+      <button type="button" class="btn" id="next-btn" disabled onclick="nextQuestion()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden">
+    <div class="result-card" id="result-card">
+      <span class="result-archetype" id="r-archetype"></span>
+      <span class="result-icon" id="r-icon"></span>
+      <h2 class="result-title" id="r-title"></h2>
+      <ul class="result-description" id="r-desc"></ul>
+      <blockquote class="result-quote" id="r-quote"></blockquote>
+      <div class="result-verdict" id="r-verdict"></div>
+
+      <div class="breakdown" id="breakdown">
+        <p class="breakdown-title">Your complete profile</p>
+        <div id="breakdown-bars"></div>
+      </div>
+
+      <br>
+      <button class="btn-restart" onclick="restart()">Begin Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROMAN = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
+// Archetypes: C=Carnival, A=Auditor, S=Sanctioned, T=Tomorrow(Scarlett), F=Free Spirit, R=Friar
+const questions = [
+  {
+    text: "A charming stranger, with the eyes of a pirate and the soul of a poet, offers you a dance at the edge of a cliff. The auditing staff in your head is already drafting a risk assessment. You:",
+    options: [
+      { text: "Are already dancing. The report can wait.", scores: { C: 3, T: 1 } },
+      { text: "Ask for a full background check before accepting.", scores: { A: 3 } },
+      { text: "Dance, but keep one eye on the exit. You've been here before.", scores: { F: 3 } },
+      { text: "Watch from a safe distance, taking notes.", scores: { R: 3 } },
+      { text: "Dance, and deal with the audit report later.", scores: { T: 3 } },
+      { text: "Dance, get sanctioned, contest the ruling, lose the appeal.", scores: { S: 3 } }
+    ]
+  },
+  {
+    text: "You discover your risotto needs another five minutes but your guests have been waiting forty. You:",
+    options: [
+      { text: "Serve it anyway. Never compromise the mantecatura.", scores: { F: 2, A: 1 } },
+      { text: "Serve it early and pretend nothing's wrong.", scores: { T: 3 } },
+      { text: "Apologize extensively and offer a full refund of their time.", scores: { R: 2, A: 1 } },
+      { text: "Serve it perfectly and accept the consequences of the delay.", scores: { F: 3 } },
+      { text: "It's already on the table. You planned for this. The audit was done at the tostatura.", scores: { A: 3 } }
+    ]
+  },
+  {
+    text: "You are in the middle panel of Bosch's triptych painting The Garden of Earthly Delights. Your reaction:",
+    options: [
+      { text: "Thrilled. You brought a fruit arrangement.", scores: { C: 3 } },
+      { text: "You are the one filing the complaint with the authorities.", scores: { A: 3 } },
+      { text: "You came voluntarily, had a wonderful time, and are now in the third panel.", scores: { S: 3 } },
+      { text: "Great balls of fire. I can't think about that right now. If I do, I'll go crazy.", scores: { T: 3 } },
+      { text: "You're there on your own terms, eyes open, aware of the third panel.", scores: { F: 3 } },
+      { text: "You're lurking at the far left edge of the first panel, technically present but spiritually absent.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "Death challenges you to a game of chess. You:",
+    options: [
+      { text: "Accept, but suggest switching to something more festive.", scores: { C: 2, T: 1 } },
+      { text: "Request the rulebook in writing before agreeing to any terms.", scores: { A: 3 } },
+      { text: "Play, lose with dignity, negotiate a footnote in the verdict.", scores: { S: 2, F: 1 } },
+      { text: "Play brilliantly. If you lose, you'll deal with it after dessert.", scores: { T: 3 } },
+      { text: "Play knowing you'll lose. The game is the point, not the outcome.", scores: { F: 3 } },
+      { text: "Pretend you don't speak chess.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "Someone calls you a sexy creature. Your internal auditors:",
+    options: [
+      { text: "Are briefly incapacitated. You send them to the Bermudas. They will return.", scores: { C: 2, S: 1 } },
+      { text: "Immediately flag this as a manipulation attempt and file a report.", scores: { A: 3 } },
+      { text: "Were against it. You overruled them. You're still dealing with the consequences.", scores: { S: 3 } },
+      { text: "Will review the comment's implications tomorrow.", scores: { T: 3 } },
+      { text: "Note it, file it, and let you enjoy the moment without surrendering judgment.", scores: { F: 3 } },
+      { text: "Weren't consulted because you fled the room immediately.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "You find yourself at a carnival where every ride is a bad decision you've wanted to make. You:",
+    options: [
+      { text: "Buy an all-day pass.", scores: { C: 3 } },
+      { text: "Stand at the entrance with a clipboard.", scores: { A: 3 } },
+      { text: "Ride everything, lose something important, contest the prize policy.", scores: { S: 3 } },
+      { text: "Ride two things, after all, with enough courage you can do without a reputation.", scores: { T: 3 } },
+      { text: "Choose two rides deliberately, enjoy them fully, leave before you're tempted by the third.", scores: { F: 3 } },
+      { text: "Watch from across the street, eating a sensible sandwich.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "Your elegant and handsome therapist tells you that you are finally cured, there is no need to come back for another session. You:",
+    options: [
+      { text: "Demand a second opinion. There must be more to discover.", scores: { C: 2, A: 1 } },
+      { text: "Review the full diagnostic criteria and ask for documentation.", scores: { A: 3 } },
+      { text: "Accept the diploma, mourn the loss of the weekly existential conversation.", scores: { F: 2, S: 1 } },
+      { text: "Accept it today, come back to the therapist's office next week anyways.", scores: { T: 3 } },
+      { text: "Accept it with genuine bittersweet grace and move on.", scores: { F: 3 } },
+      { text: "Feel unworthy of the verdict. Remain in the waiting room anyway.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "You've been playing chess against yourself. The game has gone on for some time. You are:",
+    options: [
+      { text: "Cheating on behalf of both sides and finding it spectacular.", scores: { C: 3 } },
+      { text: "Maintaining strict tournament regulations and have filed a complaint against yourself twice.", scores: { A: 3 } },
+      { text: "Winning, then losing, then disputing the outcome with your own internal appeals board.", scores: { S: 3 } },
+      { text: "About to finish the game. Tomorrow, definitely.", scores: { T: 3 } },
+      { text: "Playing seriously, knowing the real opponent is the silence on the other side of the board.", scores: { F: 3 } },
+      { text: "Staring at the board having moved no pieces in forty minutes.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "Rhett Butler looks at you and says: 'Frankly, my dear...' You:",
+    options: [
+      { text: "Interrupt him. You already know and you've moved on.", scores: { C: 2, F: 1 } },
+      { text: "Have prepared a seven-point counter-argument.", scores: { A: 3 } },
+      { text: "Let him finish, acknowledge the accuracy, file an appeal anyway.", scores: { S: 3 } },
+      { text: "Let him finish. Think about what it means some other day.", scores: { T: 3 } },
+      { text: "Let him finish. You've suspected as much. You're already planning Tara's reconstruction.", scores: { F: 3 } },
+      { text: "Were never in the room. You waited in the corridor, just in case.", scores: { R: 3 } }
+    ]
+  },
+  {
+    text: "At the end of a long, rich, complicated life, your internal audit team presents their final report. You:",
+    options: [
+      { text: "Throw a party. The report is the entertainment.", scores: { C: 3 } },
+      { text: "Read every page. Dispute three items. Request an addendum.", scores: { A: 3 } },
+      { text: "Accept the sanctions with dignity. The carnival was worth it.", scores: { S: 3 } },
+      { text: "Read it, toss it away. You've never heard of such bad taste.", scores: { T: 3 } },
+      { text: "Read it, nod, and note that you'd do most of it again.", scores: { F: 3 } },
+      { text: "Are relieved to find the report is mercifully brief.", scores: { R: 3 } }
+    ]
+  }
+];
+
+const archetypes = {
+  C: {
+    label: "The Carnival",
+    title: "Pure Carnival Enthusiast",
+    icon: "🎠",
+    desc: [
+      "You arrived at the garden of earthly delights with a reservation and a fruit arrangement.",
+      "Life is the middle panel of Bosch and you have made your peace with that — indeed, you've decorated it.",
+      "You experience first and audit never, which makes for an extraordinary biography and some truly spectacular regrets.",
+      "The Deloitte staff are on permanent sabbatical."
+    ],
+    quote: "The carnival moves on. You are still on the ride.",
+    verdict: "Auditor's note: Subject has repeatedly ignored all risk assessments. Life expectancy of regrets: indefinite. Quality of stories: exceptional."
+  },
+  A: {
+    label: "The Auditor",
+    title: "The Relentless Internal Committee",
+    icon: "📋",
+    desc: [
+      "You have never sent the auditors to the Bermudas. Not once.",
+      "They have full executive power, a corner office, and a direct line to your decisions at all times.",
+      "You are extraordinarily reliable, probably quite admirable, and occasionally exhausting to yourself.",
+      "The good news: your portfolio is immaculate. The complicated news: you have been in the waiting room of several carnivals without ever buying a ticket."
+    ],
+    quote: "The audit is always open. Even on Sundays.",
+    verdict: "Subject maintains flawless compliance records. Recommended for promotion. Has never tried the risotto at the carnival. This is noted."
+  },
+  S: {
+    label: "The Sanctioned",
+    title: "Carnival Participant Under Review",
+    icon: "⚖️",
+    desc: [
+      "You went to the carnival with full knowledge of the risks and had a magnificent time.",
+      "You are now working your way through the regulatory consequences with admirable composure.",
+      "You contest the findings, you appeal the rulings — while acknowledging, privately, that the ride was worth the paperwork.",
+      "The candy heart incident remains on file. You have not fully recovered. You wouldn't change it."
+    ],
+    quote: "I filed the appeal. I would file it again.",
+    verdict: "Multiple infractions recorded. Subject disputes all charges on reasonable grounds. Case ongoing. Expected resolution: never, but beautifully contested."
+  },
+  T: {
+    label: "The Scarlett",
+    title: "I'll Think About It Tomorrow",
+    icon: "🌅",
+    desc: [
+      "You have the survival instinct of someone who has rebuilt Tara from rubble three times.",
+      "You possess the remarkable gift of selective temporal displacement.",
+      "Consequences are real — you simply prefer to schedule them. This is not cowardice. It is an extremely sophisticated form of resilience.",
+      "Tomorrow always comes, and when it does, you are usually ready. Usually."
+    ],
+    quote: "After all, tomorrow is another day.",
+    verdict: "Audit perpetually deferred. Files marked PENDING since — the auditors have stopped writing the date. Subject has nevertheless survived everything."
+  },
+  F: {
+    label: "The Free Spirit",
+    title: "Eyes Open, Price Paid",
+    icon: "🃏",
+    desc: [
+      "You are the rarest type. You go to the carnival knowing it is a carnival.",
+      "You consult the auditors, hear their objections, weigh them seriously — and then make your choice with full consciousness of the cost.",
+      "You have a crushed candy heart somewhere in the files. You carry it not as a wound, but as evidence that you were genuinely present for your own life.",
+      "Beauty is your rebellion. The risotto is always perfect."
+    ],
+    quote: "Every beautiful thing matters. It is a celebration and a rebellion.",
+    verdict: "Subject informed of all risks. Proceeded anyway. Results: complicated, occasionally brilliant, evidently worth it. Auditors: grudgingly impressed."
+  },
+  R: {
+    label: "The Friar",
+    title: "The Frightened Friar",
+    icon: "🕯️",
+    desc: [
+      "You are not without feeling — quite the opposite. You feel everything so acutely that the carnival represents an almost unbearable intensity.",
+      "You watch from the edges, keep the candle lit, present in spirit if cautious in body.",
+      "Block met you in The Seventh Seal and recognized a kindred soul.",
+      "The question is whether, before the Dance of Death begins, you might allow yourself one ride."
+    ],
+    quote: "The storm is on the horizon. The holy family slips quietly away. Where are you?",
+    verdict: "No infractions recorded. No carnival tickets purchased. However: auditors note subject has been observed standing at the entrance on seven separate occasions."
+  }
+};
+
+let current = 0;
+let answers = [];
+let selectedOption = null;
+
+function renderQuestion() {
+  const q = questions[current];
+  // Shuffle options for this render
+  const shuffled = [...q.options].sort(() => Math.random() - 0.5);
+
+  document.getElementById('q-number').textContent = `Question ${ROMAN[current]}`;
+  document.getElementById('q-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  const pct = Math.round((current / questions.length) * 100);
+  document.getElementById('q-pct').textContent = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-text').textContent = q.text;
+
+  const opts = document.getElementById('q-options');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D','E','F'];
+  shuffled.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'option';
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt.text}</span>`;
+    btn.onclick = () => selectOption(opt.scores, btn);
+    opts.appendChild(btn);
+  });
+
+  selectedOption = null;
+  document.getElementById('next-btn').disabled = true;
+
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Animate card
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'fadeUp 0.4s ease forwards';
+}
+
+function selectOption(scores, btn) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedOption = scores;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.disabled = false;
+  // On mobile the button is fixed at bottom — no scroll needed
+  // On desktop, scroll to bring the button into view
+  if (window.innerWidth > 640) {
+    setTimeout(() => {
+      nextBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 200);
+  }
+}
+
+function nextQuestion() {
+  if (selectedOption === null) return;
+  answers.push(selectedOption);
+  current++;
+  if (current >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  // Tally scores
+  const scores = { C: 0, A: 0, S: 0, T: 0, F: 0, R: 0 };
+  answers.forEach((optScores) => {
+    Object.entries(optScores).forEach(([k, v]) => { scores[k] = (scores[k] || 0) + v; });
+  });
+
+  const winner = Object.entries(scores).sort((a,b) => b[1] - a[1])[0][0];
+  const arch = archetypes[winner];
+
+  document.getElementById('quiz').classList.add('hidden');
+  const res = document.getElementById('result');
+  res.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  document.getElementById('r-archetype').textContent = arch.label;
+  document.getElementById('r-icon').textContent = arch.icon;
+  document.getElementById('r-title').textContent = arch.title;
+  const descEl = document.getElementById('r-desc');
+  descEl.innerHTML = arch.desc.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('r-quote').textContent = arch.quote;
+  document.getElementById('r-verdict').textContent = arch.verdict;
+
+  // Progress bar for final %
+  document.getElementById('q-label').textContent = 'Complete';
+  document.getElementById('q-pct').textContent = '100%';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  // Breakdown
+  const total = Object.values(scores).reduce((a,b) => a+b, 0);
+  const labels = { C: 'The Carnival', A: 'The Auditor', S: 'The Sanctioned', T: 'Scarlett', F: 'Free Spirit', R: 'The Friar' };
+  const wrap = document.getElementById('breakdown-bars');
+  wrap.innerHTML = '';
+  Object.entries(scores).sort((a,b) => b[1]-a[1]).forEach(([k, v]) => {
+    const pct = Math.round((v / total) * 100);
+    wrap.innerHTML += `
+      <div class="breakdown-item">
+        <span class="breakdown-label">${labels[k]}</span>
+        <div class="breakdown-bar-wrap"><div class="breakdown-bar" style="width:0%" data-pct="${pct}"></div></div>
+        <span class="breakdown-pct">${pct}%</span>
+      </div>`;
+  });
+
+  // Animate bars
+  setTimeout(() => {
+    wrap.querySelectorAll('.breakdown-bar').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  }, 400);
+}
+
+function restart() {
+  current = 0;
+  answers = [];
+  selectedOption = null;
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  renderQuestion();
+}
+
+// Init
+renderQuestion();
+</script>
+</body>
+</html>
